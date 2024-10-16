@@ -1,7 +1,7 @@
 package ru.kononov;
 
-import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
+import ru.kononov.annotations.*;
+
 import java.lang.reflect.Method;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,14 +20,21 @@ public class TestRunner {
         checkers(); // Выполняем необходимые проверки аннотаций
         Object tests = clz.getDeclaredConstructor().newInstance();
         Method methodBefore = getMethodByAnnotation(BeforeSuite.class);
+        Method methodBeforeEach = getMethodByAnnotation(BeforeTest.class);
         Method methodAfter = getMethodByAnnotation(AfterSuite.class);
+        Method methodAfterEach = getMethodByAnnotation(AfterTest.class);
         if(methodBefore != null)    //Выполняем метод @BeforeSuite, если такой есть
             runTest(methodBefore, tests);
         sortedTests().forEach(method -> {   //Выполняем основные тесты @Test
+            if(methodAfterEach!= null)
+                runTest(methodBeforeEach, tests);   //Выполняем @BeforeTest
             runTest(method, tests);
+            if(methodAfterEach!= null)
+                runTest(methodAfterEach, tests);   //Выполняем @AfterTest
         });
         if(methodAfter != null)    //Выполняем метод @AfterSuite, если такой есть
             runTest(methodAfter, tests);
+        System.out.println("----------------------");
         System.out.println("Результаты тестов: ");
         int positiveTests = 0;
         int negativeTests = 0;

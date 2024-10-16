@@ -1,9 +1,23 @@
 package ru.kononov;
 
+import ru.kononov.annotations.*;
+
 public class Tests {
     public static void support() {
 
     }
+
+    @AfterTest
+    public void afterTest(){
+        System.out.println("after each test");
+    }
+
+
+    @BeforeTest
+    public void beforeTest(){
+        System.out.println("before each test");
+    }
+
     @Test(priority = 2)
     public void test1() {
         System.out.println("make test priority 2");
