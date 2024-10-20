@@ -44,4 +44,11 @@ public class Tests {
         System.out.println("make test after");
 
     }
+
+    @CsvSource("5 true hello")
+    @Test
+    public void methodWithParams(int a, boolean b, String c) {
+
+        System.out.println(a + ((b==true) ? " true " : " else ") + c);
+    }
 }

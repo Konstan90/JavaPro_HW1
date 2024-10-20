@@ -2,7 +2,9 @@ package ru.kononov;
 
 import ru.kononov.annotations.*;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -50,7 +52,6 @@ public class TestRunner {
                 negativeTests++;
             }
 
-
         }
         System.out.println("Успешных тестов:     " + positiveTests);
         System.out.println("Тестов с ошибками:   " + negativeTests);
@@ -90,10 +91,29 @@ public class TestRunner {
 
     private void runTest(Method m, Object cls) {
         try {
-            m.invoke(cls);
+            if(m.isAnnotationPresent(CsvSource.class))
+                m.invoke(cls,getParamsList(m));
+            else m.invoke(cls);
             resultTests.put(m.getName(),0);
         } catch (Exception e) {
             resultTests.put(m.getName(),1);
         }
+    }
+
+    private Object[] getParamsList(Method m) {
+        Parameter[] parameters = m.getParameters();
+        String[] arrayP = m.getAnnotation(CsvSource.class).value().split(" ");
+        Object[] out = new Object[parameters.length];
+        for(int i=0; i<parameters.length; i++) {
+            if(parameters[i].getType() == boolean.class || parameters[i].getType() == Boolean.class)
+                out[i] = Boolean.parseBoolean(arrayP[i]);
+
+            if(parameters[i].getType() == int.class || parameters[i].getType() == Integer.class)
+                out[i] = Integer.parseInt(arrayP[i]);
+
+            if(parameters[i].getType() == String.class)
+                out[i] = arrayP[i];
+        }
+        return out;
     }
 }
